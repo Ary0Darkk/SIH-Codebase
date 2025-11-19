@@ -1,5 +1,6 @@
 import serial
 import time
+from datetime import datetime
 import csv
 
 PORT = "COM4"       # <- change to your Arduino port
@@ -12,7 +13,7 @@ time.sleep(2)  # let Arduino reset
 
 with open(CSV_FILE, "w", newline="") as f:
     writer = csv.writer(f)
-    writer.writerow(["timestamp_sec", "sample_index", "raw_adc"])
+    writer.writerow(["timestamp", "sample_index", "raw_input"])
 
     print("Starting ECG acquisition... Ctrl+C to stop.")
     n = 0
@@ -23,7 +24,9 @@ with open(CSV_FILE, "w", newline="") as f:
                 continue
 
             raw = int(line)
-            t = time.time()
+            timestamp = time.time()
+            t = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S.%f")
+            # t = time.time()
             writer.writerow([t, n, raw])
             print(f"{n}\t{raw}")
             n += 1
