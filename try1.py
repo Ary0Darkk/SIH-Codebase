@@ -9,9 +9,9 @@ import matplotlib.animation as animation
 from datetime import datetime
 
 # ===================== USER CONFIG =====================
-PORT = "COM5"
+PORT = "COM3"
 BAUD = 115200
-SAVE_DIR = r"C:\sih\SIH_GamingNexus\Gayatri"
+SAVE_DIR = r"C:\Users\rohit\OneDrive\Desktop\MTECH\Sem3\HACKATHON\Code\SIH"
 MAX_SAMPLES = 800
 # =======================================================
 
