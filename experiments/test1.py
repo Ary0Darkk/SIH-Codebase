@@ -16,7 +16,7 @@ print("Current working directory:", os.getcwd())
 import sys
 sys.path.append(r"C:\Users\rohit\OneDrive\Desktop\MTECH\Sem3\HACKATHON\Code\SIH\SIH-Codebase")
 
-from Fourier_tansfrom import extract_features, feature_cols
+from src.emg.Fourier_tansfrom import extract_features, feature_cols
 
 
 # -------------------- SERIAL CONFIG --------------------

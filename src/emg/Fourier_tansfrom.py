@@ -1,22 +1,17 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  # help in plotting data in 3D
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    classification_report,
-    confusion_matrix,
-    accuracy_score,
-    ConfusionMatrixDisplay
-)
-from scipy.signal import welch
+from sklearn.metrics import classification_report,confusion_matrix,accuracy_score,ConfusionMatrixDisplay
+from scipy.signal import welch  # TODO: what does this welch exactly does 
 import joblib
 import os
 
 # ===================== USER CONFIGURATION =====================
-BASE_DIR = r"C:\Users\rohit\OneDrive\Desktop\MTECH\Sem3\HACKATHON\Code\SIH"
+BASE_DIR = r"raw_data"
 
 GESTURE_FILES = {
     'round': ["round1.csv", "round3.csv"],
