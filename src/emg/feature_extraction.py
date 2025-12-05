@@ -1,12 +1,10 @@
 import os
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+import glob
 
 # ======== CONFIG ==========
-DATA_DIR = r"C:\sih\SIH_GamingNexus\Gayatri"
+RAW_FOLDER = r"processed_data/mixed_dataset.csv"
 WINDOW_SIZE = 200    # samples per window
 STEP = 100           # overlap
 # ==========================
@@ -47,29 +45,28 @@ def process_file(path, label):
 
 
 # ======== LOAD ALL GESTURE FILES ========
+# map each file to its gesture
+map_gesture = {
+    "round1.csv":"round",
+    "round3.csv":"round",
+    "shoot3.csv":"shoot",
+    "shoot_gesture1.csv":"shoot",
+    "up_down1.csv":"updown",
+    "up_down3.csv":"updown",
+}
+
+
 dataset = []
 
-dataset += process_file(os.path.join(DATA_DIR, "round1.csv"), "round")
-dataset += process_file(os.path.join(DATA_DIR, "shoot_gesture1.csv"), "shoot")
-dataset += process_file(os.path.join(DATA_DIR, "up_down1.csv"), "updown")
+for file_path in glob.glob(os.path.join(RAW_FOLDER, "*.csv")):
 
+    dataset += process_file(file_path, map_gesture[str(os.path.basename(file_path))])
+    
+    print(dataset)
+
+# define columns in data
 df = pd.DataFrame(dataset, columns=[
     "MAV", "RMS", "WL", "VAR", "ZC", "SSC", "label"
 ])
 
-print(df.head())
-
-# ======== TRAIN ML MODEL ========
-X = df.iloc[:, :-1]
-y = df["label"]
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
-model = RandomForestClassifier(n_estimators=200)
-model.fit(X_train, y_train)
-
-# ====== ACCURACY ======
-pred = model.predict(X_test)
-print("Accuracy:", accuracy_score(y_test, pred))
+print(df.head(5))

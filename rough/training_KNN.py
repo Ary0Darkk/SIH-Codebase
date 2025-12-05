@@ -13,7 +13,7 @@ import os
 # ===================== USER CONFIGURATION =====================
 # Directory containing your CSV files (relative to where you run the script)
 # NOTE: This must match the directory in your initial prompt output!
-BASE_DIR = r"C:\Users\rohit\OneDrive\Desktop\MTECH\Sem3\HACKATHON\Code\SIH"
+BASE_DIR = r"raw_data"
 
 # Define the gestures and the CSV files associated with each one
 # Assign a list of all relevant files for each gesture category.
@@ -97,7 +97,7 @@ for gesture, files in GESTURE_FILES.items():
         file_path = os.path.join(BASE_DIR, file_name)
         
         if not os.path.exists(file_path):
-            print(f"  ❌ File not found: {file_name}. Skipping.")
+            print(f"File not found: {file_name}. Skipping.")
             continue
             
         try:
@@ -117,7 +117,7 @@ for gesture, files in GESTURE_FILES.items():
             
             # Check if there is enough data after cleaning
             if len(raw_signal) < 100:
-                print(f"  ⚠ Not enough clean data in {file_name}. Skipping.")
+                print(f"Not enough clean data in {file_name}. Skipping.")
                 continue
 
             # Extract 5 features from this raw signal segment
@@ -127,11 +127,11 @@ for gesture, files in GESTURE_FILES.items():
             feature_df['label'] = gesture
             all_data.append(feature_df)
             
-            print(f"  ✅ Loaded and extracted {len(feature_df)} feature vectors from {file_name}")
+            print(f"Loaded and extracted {len(feature_df)} feature vectors from {file_name}")
             
         except Exception as e:
             # Print a detailed error if cleaning failed or other loading issues occurred
-            print(f"  ❌ Error processing {file_name} after initial clean: {e}")
+            print(f"Error processing {file_name} after initial clean: {e}")
 
 # Combine all feature DataFrames into one
 if not all_data:
