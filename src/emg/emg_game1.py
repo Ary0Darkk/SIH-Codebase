@@ -391,13 +391,15 @@
 
 
 
-import pygame
+# import pygame
 from collections import deque, Counter
 import numpy as np
 import joblib
 from scipy.fft import rfft, rfftfreq
 from scipy.stats import entropy
-from tensorflow.keras.models import load_model
+import tensorflow
+from  keras.models import load_model
+import random
 
 # ---------------- Feature extractor (same as training) ----------------
 def extract_features(window):
@@ -421,96 +423,130 @@ def extract_features(window):
 # ---------------- Load ML model ----------------
 # model = joblib.load("best_emg_model.pkl")  # make sure your model is here
 
-model = load_model("best_cnn_model.keras")
+model = load_model("models/best_cnn_model.keras")
 
-# ---------------- Pygame Setup ----------------
-pygame.init()
-SCREEN_W, SCREEN_H = 800, 400
-screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
-pygame.display.set_caption("Simple EMG Game")
-clock = pygame.time.Clock()
-FONT = pygame.font.SysFont("Arial", 18)
+print(model.input_shape)
 
-# Player
-player_w, player_h = 50, 50
-player_x = SCREEN_W//2 - player_w//2
-player_y = SCREEN_H - player_h - 20
-player_vy = 0
-on_ground = True
-
-# Bullets
-bullets = []
-GRAVITY = 0.8
-
-# Prediction smoothing
-SMOOTH_K = 5
-pred_history = deque(maxlen=SMOOTH_K)
-current_gesture = None
-
-# Simulated EMG input (replace with real Arduino readings)
 emg_window = deque(maxlen=50)
-import random
+
 def get_emg_value():
     val = 512 + random.randint(-50,50)
     emg_window.append(val)
     return list(emg_window)
 
-# ---------------- Apply gesture action ----------------
-def apply_gesture_action(label):
-    global player_x, bullets, player_vy, on_ground
-    if label=="round":
-        player_x -= 6
-    elif label=="shoot":
-        bx = player_x + player_w
-        by = player_y + player_h//2
-        bullets.append([bx, by, 12])
-    elif label=="up_down":
-        if on_ground:
-            player_vy = -12
-            on_ground = False
-
-# ---------------- Main Loop ----------------
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type==pygame.QUIT:
-            running=False
-
-    # ---------------- Read EMG & predict ----------------
+while True:
+    
     win = get_emg_value()
+    print('Printing win...')
+    print(win)
+    print('After printing win...')
     if len(win)==50:
         feat = extract_features(win)
+        # Suppose feat is currently a 1D or 2D array of 50 values
+        feat = np.asarray(feat, dtype="float32")
+
+        # If feat is shape (50,) -> make it (1, 50, 1)
+        if feat.shape == (50,):
+            feat = feat.reshape(1, 50, 1)
+
+        # If feat is shape (1, 50) -> make it (1, 50, 1)
+        elif feat.shape == (1, 50):
+            feat = feat.reshape(1, 50, 1)
+        
         pred = model.predict(feat)[0]
-        pred_history.append(pred)
-        current_gesture = Counter(pred_history).most_common(1)[0][0]
+        
+        print(f'Prediction : {pred}')
+        # pred_history.append(pred)
+        # current_gesture = Counter(pred_history).most_common(1)[0][0]
 
-    # ---------------- Apply gesture ----------------
-    if current_gesture:
-        apply_gesture_action(current_gesture)
+# ---------------- Pygame Setup ----------------
+# pygame.init()
+# SCREEN_W, SCREEN_H = 800, 400
+# screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
+# pygame.display.set_caption("Simple EMG Game")
+# clock = pygame.time.Clock()
+# FONT = pygame.font.SysFont("Arial", 18)
 
-    # ---------------- Update physics ----------------
-    player_vy += GRAVITY
-    player_y += player_vy
-    if player_y >= SCREEN_H - player_h - 20:
-        player_y = SCREEN_H - player_h - 20
-        player_vy = 0
-        on_ground = True
+# # Player
+# player_w, player_h = 50, 50
+# player_x = SCREEN_W//2 - player_w//2
+# player_y = SCREEN_H - player_h - 20
+# player_vy = 0
+# on_ground = True
 
-    # update bullets
-    for b in bullets[:]:
-        b[0] += b[2]
-        if b[0] > SCREEN_W+50:
-            bullets.remove(b)
+# # Bullets
+# bullets = []
+# GRAVITY = 0.8
 
-    # ---------------- Draw ----------------
-    screen.fill((30,30,30))
-    pygame.draw.rect(screen,(50,50,50),(0,SCREEN_H-20,SCREEN_W,20))  # ground
-    pygame.draw.rect(screen,(0,180,255),(int(player_x),int(player_y),player_w,player_h))  # player
-    for b in bullets:
-        pygame.draw.circle(screen,(255,200,0),(int(b[0]),int(b[1])),6)
-    txt = FONT.render(f"Gesture: {current_gesture}",True,(255,255,255))
-    screen.blit(txt,(10,10))
-    pygame.display.flip()
-    clock.tick(60)
+# # Prediction smoothing
+# SMOOTH_K = 5
+# pred_history = deque(maxlen=SMOOTH_K)
+# current_gesture = None
 
-pygame.quit()
+# # Simulated EMG input (replace with real Arduino readings)
+# emg_window = deque(maxlen=50)
+# import random
+# def get_emg_value():
+#     val = 512 + random.randint(-50,50)
+#     emg_window.append(val)
+#     return list(emg_window)
+
+# # ---------------- Apply gesture action ----------------
+# def apply_gesture_action(label):
+#     global player_x, bullets, player_vy, on_ground
+#     if label=="round":
+#         player_x -= 6
+#     elif label=="shoot":
+#         bx = player_x + player_w
+#         by = player_y + player_h//2
+#         bullets.append([bx, by, 12])
+#     elif label=="up_down":
+#         if on_ground:
+#             player_vy = -12
+#             on_ground = False
+
+# # ---------------- Main Loop ----------------
+# running = True
+# while running:
+#     for event in pygame.event.get():
+#         if event.type==pygame.QUIT:
+#             running=False
+
+#     # ---------------- Read EMG & predict ----------------
+#     win = get_emg_value()
+#     if len(win)==50:
+#         feat = extract_features(win)
+#         pred = model.predict(feat)[0]
+#         pred_history.append(pred)
+#         current_gesture = Counter(pred_history).most_common(1)[0][0]
+
+#     # ---------------- Apply gesture ----------------
+#     if current_gesture:
+#         apply_gesture_action(current_gesture)
+
+#     # ---------------- Update physics ----------------
+#     player_vy += GRAVITY
+#     player_y += player_vy
+#     if player_y >= SCREEN_H - player_h - 20:
+#         player_y = SCREEN_H - player_h - 20
+#         player_vy = 0
+#         on_ground = True
+
+#     # update bullets
+#     for b in bullets[:]:
+#         b[0] += b[2]
+#         if b[0] > SCREEN_W+50:
+#             bullets.remove(b)
+
+#     # ---------------- Draw ----------------
+#     screen.fill((30,30,30))
+#     pygame.draw.rect(screen,(50,50,50),(0,SCREEN_H-20,SCREEN_W,20))  # ground
+#     pygame.draw.rect(screen,(0,180,255),(int(player_x),int(player_y),player_w,player_h))  # player
+#     for b in bullets:
+#         pygame.draw.circle(screen,(255,200,0),(int(b[0]),int(b[1])),6)
+#     txt = FONT.render(f"Gesture: {current_gesture}",True,(255,255,255))
+#     screen.blit(txt,(10,10))
+#     pygame.display.flip()
+#     clock.tick(60)
+
+# pygame.quit()

@@ -1792,10 +1792,10 @@ def connect_serial():
         ser = serial.Serial(PORT, BAUD, timeout=1)
         time.sleep(2)  # wait for Arduino reset
         ser.reset_input_buffer()
-        print(f"✔ Connected to {PORT}\n")
+        print(f"Connected to {PORT}\n")
         return ser
     except:
-        print("❌ ERROR: Could not connect to Arduino")
+        print("ERROR: Could not connect to Arduino")
         exit()
 
 
@@ -1822,7 +1822,7 @@ def collect_gesture(ser, gesture_name):
     print("Recording starts in 1...\n")
     time.sleep(1)
 
-    print("🎯 START! Hold the gesture...")
+    print("START! Hold the gesture...")
     print("Warming up sensor...")
 
     # ---- Important fix: prevents first-gesture fast sampling issue ----
@@ -1871,7 +1871,7 @@ def save_gesture(gesture, data):
         for row in data:
             writer.writerow(row)
 
-    print(f"📁 Saved: {filename}")
+    print(f"Saved: {filename}")
 
 
 def main():
@@ -1900,7 +1900,7 @@ def main():
         save_gesture(gesture, data)
 
     ser.close()
-    print("\n🎉 All gestures recorded successfully!")
+    print("\nAll gestures recorded successfully!")
 
 
 if __name__ == "__main__":
